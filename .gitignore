@@ -31,3 +31,7 @@
 *.db
 *.ipch
 .vs
+*.ilk
+*.pdb
+*.log
+Debug

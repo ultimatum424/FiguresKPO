@@ -15,7 +15,7 @@ int main()
 	std::cin.clear();
 	std::cin >> b;
 
-	CBigInt c = a - b;
+	CBigInt c = a / b;
 	std::cout << c << std::endl;
     return 0;
 }

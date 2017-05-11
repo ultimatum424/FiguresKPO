@@ -8,9 +8,21 @@ CBigInt::CBigInt()
 	m_digits.resize(0, 1);
 }
 
-CBigInt::CBigInt(const int size)
+CBigInt::CBigInt(const int num)
 {
-	m_digits.resize(0, size);
+	int len = 1;
+	int tempNum = num;
+	while (tempNum > CBigInt::BASE)
+	{
+		tempNum /= CBigInt::BASE;
+		len++;
+	}
+	tempNum = num;
+	for (int i = 0; i < len; i++) 
+	{
+		m_digits.push_back(tempNum % CBigInt::BASE);
+		tempNum /= CBigInt::BASE;
+	}
 }
 
 bool CBigInt::IsPositive() const
@@ -105,12 +117,22 @@ bool operator>(const CBigInt& left, const CBigInt& right)
 	{
 		return left.m_digits.size() > right.m_digits.size();
 	}
-	for (size_t i = left.m_digits.size() - 1; i >= 0; i--)
+	for (int i = left.m_digits.size() - 1; i >= 0; --i)
 	{
 		if (left.m_digits[i] != right.m_digits[i])
 			return left.m_digits[i] > right.m_digits[i];
 	}
 	return false;
+}
+
+bool operator<=(const CBigInt& left, const CBigInt& right)
+{
+	return (left < right) || (left == right);
+}
+
+bool operator>=(const CBigInt& left, const CBigInt& right)
+{
+	return (left > right) || (left == right);
 }
 
 bool operator<(const CBigInt& left, const CBigInt& right)
@@ -213,9 +235,109 @@ CBigInt const operator-(const CBigInt& first, const CBigInt& second)
 	return result;
 }
 
+CBigInt const operator*(const CBigInt& first, const CBigInt& second)
+{
+	CBigInt result;
+	result.m_digits.resize(first.m_digits.size() + second.m_digits.size());
+	for (size_t i = 0; i < first.m_digits.size(); i++)
+	{
+		unsigned int fCarry = 0;
+		int current;
+		for (size_t j = 0; j < second.m_digits.size(); j++)
+		{
+			result.m_digits[i + j] += first.m_digits[i] * second.m_digits[j] + fCarry;
+			fCarry = result.m_digits[i + j] / CBigInt::BASE;
+			result.m_digits[i + j] -= fCarry * CBigInt::BASE;
+		}
+		result.m_digits[i + second.m_digits.size()] += fCarry;
+	}
+	
+	while (result.m_digits.size() > 1 && result.m_digits.back() == 0)
+	{
+		result.m_digits.pop_back();
+	}
+	if (result.m_digits.size() == 1 && result.m_digits[0] == 0)
+	{
+		result.SetSing(true);
+	}
+
+	return  result;
+	
+}
+
+
+CBigInt const operator/(const CBigInt& first, const CBigInt& second)
+{
+	if (second == 0)
+	{
+		throw std::logic_error("Divide_by_zero");
+	}
+	CBigInt b = second;
+	b.SetSing(true);
+	CBigInt result;
+	CBigInt current;
+	result.m_digits.resize(first.m_digits.size());
+	for (int i =(first.m_digits.size()) - 1; i >= 0; --i)
+	{
+		current.ShiftDigit();
+		current.m_digits[0] = first.m_digits[i];
+
+		while (current.m_digits.size() > 1 && current.m_digits.back() == 0)
+		{
+			current.m_digits.pop_back();
+		}
+		if (current.m_digits.size() == 1 && current.m_digits[0] == 0)
+		{
+			current.SetSing(true);
+		}
+		int x = 0;
+		int lCarry = 0;
+		int fCarry = CBigInt::BASE;
+		while (lCarry <= fCarry)
+		{
+			int m = (lCarry + fCarry) / 2;
+			CBigInt t = b * m;
+			if (t <= current)
+			{
+				x = m;
+				lCarry = m + 1;
+			}
+			else { fCarry = m - 1; }
+		}
+		result.m_digits[i] = x;
+		current = current - b *  x;
+
+	}
+	result.SetSing(first.IsPositive() == second.IsPositive());
+
+	while (result.m_digits.size() > 1 && result.m_digits.back() == 0)
+	{
+		result.m_digits.pop_back();
+	}
+	if (result.m_digits.size() == 1 && result.m_digits[0] == 0)
+	{
+		result.SetSing(true);
+	}
+	return result;
+}
+
 
 CBigInt::~CBigInt()
 {
+}
+
+void CBigInt::ShiftDigit()
+{
+	if (m_digits.size() == 0)
+	{
+		m_digits.push_back(0);
+		return;
+	}
+	m_digits.push_back(m_digits[m_digits.size() - 1]);
+	for (size_t i = m_digits.size() - 2; i > 0; i--)
+	{
+		m_digits[i] = m_digits[i - 1];
+	}
 }
 
 void CBigInt::SetSing(const bool isPositiveSing)

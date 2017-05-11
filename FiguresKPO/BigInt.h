@@ -6,7 +6,7 @@ class CBigInt
 public:
 	static const unsigned int BASE = 10;
 	CBigInt();
-	CBigInt(const int size);
+	CBigInt(const int num);
 	bool IsPositive() const;
 	void SetSing(const bool isPositiveSing);
 	
@@ -15,10 +15,12 @@ public:
 	CBigInt& CBigInt::operator=(const CBigInt& num);
 	CBigInt CBigInt::operator+() const;
 	CBigInt CBigInt::operator-() const;
-	std::vector<int> m_digits;
+	void ShiftDigit();
 
+	std::vector<int> m_digits;
 	~CBigInt();
 private:
+	
 	bool m_isPositive = true;
 
 
@@ -35,5 +37,10 @@ bool operator<(const CBigInt& left, const CBigInt& right);
 
 CBigInt const operator+ (const CBigInt& first, const CBigInt& second);
 CBigInt const operator- (const CBigInt& first, const CBigInt& second);
+CBigInt const operator* (const CBigInt& first, const CBigInt& second);
+CBigInt const operator/ (const CBigInt& first, const CBigInt& second);
+
+
+
 
 
