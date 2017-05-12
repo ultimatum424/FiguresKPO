@@ -7,6 +7,7 @@ public:
 	static const unsigned int BASE = 10;
 	CBigInt();
 	CBigInt(const int num);
+	CBigInt(std::string str);
 	bool IsPositive() const;
 	void SetSing(const bool isPositiveSing);
 	

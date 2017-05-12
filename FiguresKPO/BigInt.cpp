@@ -25,6 +25,33 @@ CBigInt::CBigInt(const int num)
 	}
 }
 
+CBigInt::CBigInt(std::string str)
+{
+	int len = CBigInt::BASE;
+	auto temp = std::to_string(len);
+	len = std::count(temp.crbegin(), temp.crend(), '0');
+	m_digits.clear();
+	if (str[0] == '-')
+	{
+		SetSing(false);
+		str.erase(str.begin());
+	}
+	for (int i = str.size() - 1; i >= 0; i -= len)
+	{
+		size_t start = i - len + 1;
+		if (start <= 0)
+		{
+			start = 0;
+		}
+		std::string digit = str.substr(start, i - start + 1);
+		if (std::to_string(atoi(digit.c_str())) != digit)
+		{
+			throw std::logic_error("It is not number");
+		}
+		m_digits.push_back(atoi(digit.c_str()));
+	}
+}
+
 bool CBigInt::IsPositive() const
 {
 	return  m_isPositive;
@@ -50,6 +77,7 @@ std::ostream& operator<<(std::ostream& stream, CBigInt& num)
 	}
 	return stream;
 }
+
 
 std::istream & operator>>(std::istream & stream, CBigInt & num)
 {
@@ -89,6 +117,7 @@ std::istream & operator>>(std::istream & stream, CBigInt & num)
 	}
 	return stream;
 }
+
 
 bool operator==(const CBigInt& left, const CBigInt& right)
 {
